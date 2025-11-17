@@ -1,4 +1,5 @@
 import { and, eq, inArray, type SQL } from 'drizzle-orm';
+import type { Json } from 'drizzle-typebox';
 import type {
     PaginatedResponse,
     PaginationQuerySchema,
@@ -74,6 +75,9 @@ export async function getAddresses(
         return {
             ...result,
             coordinates,
+            location: result.location as Json,
+            urlRoot: result.urlRoot as Json,
+            raw: result.raw as Json,
         };
     });
 }
