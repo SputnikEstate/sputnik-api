@@ -49,6 +49,7 @@ const addressResponseItemSchema = t.Object({
     raw: addressSchema.raw,
 });
 
-export const responseSchema = createPaginatedResponseSchema(
-    addressResponseItemSchema,
-);
+export const responseSchema = t.Union([
+    createPaginatedResponseSchema(addressResponseItemSchema),
+    t.Array(addressResponseItemSchema),
+]);

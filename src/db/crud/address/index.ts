@@ -32,7 +32,17 @@ export async function getAddresses({
     filters,
     languages,
 }: GetAddressesOptions = {}) {
-    const { limit = 24, offset = 0 } = pagination;
+    let limit: number;
+
+    if (pagination.limit !== undefined) {
+        limit = pagination.limit || 24;
+    } else if (filters?.id__in && filters.id__in.length > 0) {
+        limit = filters.id__in.length;
+    } else {
+        limit = 24;
+    }
+
+    const offset = pagination.offset || 0;
 
     let whereClause: SQL<unknown> | undefined;
 

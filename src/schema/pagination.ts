@@ -10,6 +10,7 @@ export type PaginationLinkSchema = typeof paginationLinkSchema.static;
 export const paginationQuerySchema = t.Object({
     limit: t.Optional(t.Number()),
     offset: t.Optional(t.Number()),
+    pagination: t.Optional(t.Literal('flat')),
 });
 
 export type PaginationQuerySchema = typeof paginationQuerySchema.static;
