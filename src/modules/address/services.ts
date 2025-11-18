@@ -1,8 +1,22 @@
 import { getPaginatedAddresses as getPaginatedAddressesCrud } from '../../db/crud/address';
-import type { QuerySchema } from './schema';
+import type { SupportedLanguage } from '../../i18n/config';
+import type { QuerySchema } from './schemas';
 
-export const getAddresses = async ({ query }: { query: QuerySchema }) => {
-    const filters: { id?: number; id__in?: number[] } = {};
+interface GetAddressesProps {
+    query: QuerySchema;
+    preferredLanguages: SupportedLanguage[];
+}
+
+interface AddressesFilters {
+    id?: number;
+    id__in?: number[];
+}
+
+export const getAddresses = async ({
+    query,
+    preferredLanguages,
+}: GetAddressesProps) => {
+    const filters: AddressesFilters = {};
 
     if (query.id !== undefined) {
         filters.id = query.id;
@@ -18,6 +32,8 @@ export const getAddresses = async ({ query }: { query: QuerySchema }) => {
     const result = await getPaginatedAddressesCrud({
         pagination: { limit: query.limit, offset: query.offset },
         filters: Object.keys(filters).length > 0 ? filters : undefined,
+        preferredLanguages,
     });
+
     return result;
 };
