@@ -9,7 +9,13 @@ RUN bun install
 
 COPY ./src ./src
 
-RUN curl -sfS https://dotenvx.sh/install.sh | sh
+# Install curl and dotenvx, then ensure it's in /usr/local/bin
+RUN apt-get update && apt-get install -y curl && \
+    curl -sfS https://dotenvx.sh/install.sh | sh && \
+    (which dotenvx > /dev/null && cp $(which dotenvx) /usr/local/bin/dotenvx || \
+    find /root -name dotenvx -type f -executable -exec cp {} /usr/local/bin/dotenvx \; 2>/dev/null || true) && \
+    chmod +x /usr/local/bin/dotenvx && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ENV NODE_ENV=production
 
