@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY package.json package.json
 COPY bun.lock bun.lock
+COPY bunfig.toml bunfig.toml
 
 RUN bun install
 
@@ -21,10 +22,21 @@ ENV NODE_ENV=production
 
 RUN bun build \
     --compile \
+    --external pg \
     --minify-whitespace \
     --minify-syntax \
     --outfile server \
     src/index.ts
+
+FROM oven/bun AS deps
+
+WORKDIR /app
+
+COPY package.json package.json
+COPY bun.lock bun.lock
+
+# Install only production dependencies
+RUN bun install --production
 
 FROM gcr.io/distroless/base
 
@@ -32,6 +44,8 @@ WORKDIR /app
 
 COPY --from=build /app/server server
 COPY --from=build /usr/local/bin/dotenvx /usr/local/bin/dotenvx
+
+COPY --from=deps /app/node_modules ./node_modules
 
 COPY .env .env
 

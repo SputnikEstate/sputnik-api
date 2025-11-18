@@ -1,4 +1,3 @@
-import { opentelemetry } from '@elysiajs/opentelemetry';
 import * as Sentry from '@sentry/bun';
 import { Elysia } from 'elysia';
 
@@ -17,7 +16,6 @@ export function sentry(options?: Sentry.BunOptions) {
 
     return new Elysia()
         .decorate('Sentry', Sentry)
-        .use(opentelemetry())
         .onError(
             { as: 'global' },
             function captureException({ error, Sentry }) {
