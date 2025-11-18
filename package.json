@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "@elysiajs/opentelemetry": "^1.4.7",
+    "@sentry/bun": "^10.25.0",
     "drizzle-orm": "^0.44.7",
     "drizzle-typebox": "^0.3.3",
     "elysia": "latest",
