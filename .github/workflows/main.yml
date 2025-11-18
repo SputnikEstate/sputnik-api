@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+
+  workflow_dispatch:
+
+env:
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  CR_REGISTRY: ${{ secrets.CR_REGISTRY }}
+  CR_REPOSITORY: ${{ secrets.CR_REPOSITORY }}
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+  build:
+    name: Build
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Create Env File
+        run: echo "${{ secrets.ENV_FILE }}" > .env
+
+      - name: Docker Login
+        run: echo $DOCKER_PASSWORD|docker login --username $DOCKER_USERNAME --password-stdin cr.yandex
+
+      - name: Build Docker Image
+        run: docker build --tag cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG .
+
+      - name: Publish Docker Image
+        run: docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG
+
+  deploy:
+    name: Deploy
+
+    runs-on: ubuntu-latest
+
+    needs: [build]
+
+    steps:
+      - name: Pull And Run Docker Image
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.HOST }}
+          port: ${{ secrets.PORT }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          envs: DOCKER_USERNAME, DOCKER_PASSWORD, CR_REGISTRY, CR_REPOSITORY, IMAGE_TAG
+          script: |
+            PATH="$PATH:/home/devops/yandex-cloud/bin"
+            docker pull cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG
+            docker stop --time=30 $CR_REPOSITORY || true
+            docker remove $CR_REPOSITORY || true
+            docker system prune --force
+            docker run --detach --restart always --network host --name $CR_REPOSITORY cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG

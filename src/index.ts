@@ -1,9 +1,10 @@
-import { Elysia } from 'elysia';
-import { address } from './modules/address';
-import { language } from './plugins/language';
+import cluster from 'node:cluster';
+import os from 'node:os';
+import process from 'node:process';
 
-const app = new Elysia().use(language).use(address).listen(3000);
-
-console.log(
-    `Sputnik API is running at ${app.server?.hostname}:${app.server?.port}`,
-);
+if (cluster.isPrimary) {
+    for (let i = 0; i < os.availableParallelism(); i++) cluster.fork();
+} else {
+    await import('./server');
+    console.log(`Worker ${process.pid} started`);
+}
