@@ -12,7 +12,6 @@ export function sentry(options?: Sentry.BunOptions) {
         dsn,
         environment,
         integrations: [Sentry.bunServerIntegration()],
-        tracesSampleRate: 1.0,
         ...options,
     });
 
