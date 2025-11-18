@@ -101,8 +101,8 @@ export const language = new Elysia({ name: 'language' }).derive(
         );
 
         return {
-            preferredLanguages,
-            primaryLanguage: preferredLanguages[0] ?? DEFAULT_LANGUAGE,
+            languages: preferredLanguages,
+            language: preferredLanguages[0] ?? DEFAULT_LANGUAGE,
         };
     },
 );

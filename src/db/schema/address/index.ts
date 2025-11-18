@@ -59,4 +59,6 @@ export const address = pgTable(
     ],
 );
 
+export type TranslatedField = (typeof translatedFields)[number];
+
 export { translatedFields };

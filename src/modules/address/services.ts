@@ -1,22 +1,14 @@
 import { getPaginatedAddresses as getPaginatedAddressesCrud } from '../../db/crud/address';
 import type { SupportedLanguage } from '../../i18n/config';
-import type { QuerySchema } from './schemas';
+import type { AddressFiltersSchema, QuerySchema } from './schemas';
 
 interface GetAddressesProps {
     query: QuerySchema;
-    preferredLanguages: SupportedLanguage[];
+    languages: SupportedLanguage[];
 }
 
-interface AddressesFilters {
-    id?: number;
-    id__in?: number[];
-}
-
-export const getAddresses = async ({
-    query,
-    preferredLanguages,
-}: GetAddressesProps) => {
-    const filters: AddressesFilters = {};
+export const getAddresses = async ({ query, languages }: GetAddressesProps) => {
+    const filters: AddressFiltersSchema = {};
 
     if (query.id !== undefined) {
         filters.id = query.id;
@@ -32,7 +24,7 @@ export const getAddresses = async ({
     const result = await getPaginatedAddressesCrud({
         pagination: { limit: query.limit, offset: query.offset },
         filters: Object.keys(filters).length > 0 ? filters : undefined,
-        preferredLanguages,
+        languages,
     });
 
     return result;

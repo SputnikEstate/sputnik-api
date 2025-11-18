@@ -6,15 +6,26 @@ import {
     paginationQuerySchema,
 } from '../../schema/pagination';
 
+export const filtersQuerySchema = t.Object({
+    id: t.Optional(t.Number()),
+    id__in: t.Optional(t.String()),
+});
+
+export type FiltersQuerySchema = typeof filtersQuerySchema.static;
+
 export const querySchema = t.Intersect([
     paginationQuerySchema,
-    t.Object({
-        id: t.Optional(t.Number()),
-        id__in: t.Optional(t.String()),
-    }),
+    filtersQuerySchema,
 ]);
 
 export type QuerySchema = typeof querySchema.static;
+
+export const addressFiltersSchema = t.Object({
+    id: t.Optional(t.Number()),
+    id__in: t.Optional(t.Array(t.Number())),
+});
+
+export type AddressFiltersSchema = typeof addressFiltersSchema.static;
 
 const addressSchema = spread(address, 'select');
 

@@ -1,26 +1,37 @@
 import { and, eq, inArray, type SQL } from 'drizzle-orm';
 import type { Json } from 'drizzle-typebox';
+import type { SupportedLanguage } from '../../../i18n/config';
+import type { AddressFiltersSchema } from '../../../modules/address/schemas';
 import type {
     PaginatedResponse,
     PaginationQuerySchema,
 } from '../../../schema/pagination';
 import { db } from '../../index';
-import { address } from '../../schema/address';
+import {
+    address,
+    type TranslatedField,
+    translatedFields,
+} from '../../schema/address';
+import { applyModelTranslations, selectTranslationColumns } from '../helpers';
 
-export interface GetPaginatedAddresses {
+export interface GetAddressesOptions {
     pagination?: PaginationQuerySchema;
-    filters?: {
-        id?: number;
-        id__in?: number[];
-    };
+    filters?: AddressFiltersSchema;
+    languages?: readonly SupportedLanguage[];
+}
+
+export interface GetPaginatedAddresses
+    extends Omit<GetAddressesOptions, 'pagination'> {
+    pagination?: PaginationQuerySchema;
 }
 
 export type AddressSelect = Awaited<ReturnType<typeof getAddresses>>[number];
 
-export async function getAddresses(
-    pagination: PaginationQuerySchema = {},
-    filters?: { id?: number; id__in?: number[] },
-) {
+export async function getAddresses({
+    pagination = {},
+    filters,
+    languages,
+}: GetAddressesOptions = {}) {
     const { limit = 24, offset = 0 } = pagination;
 
     let whereClause: SQL<unknown> | undefined;
@@ -41,17 +52,11 @@ export async function getAddresses(
     const query = db
         .select({
             id: address.id,
-            name: address.name,
-            description: address.description,
             kind: address.kind,
             coordinates: address.point,
-            formatted: address.formatted,
             path: address.path,
-            location: address.location,
-            slug: address.slug,
-            url: address.url,
-            urlRoot: address.urlRoot,
             raw: address.raw,
+            ...selectTranslationColumns(address, translatedFields, languages),
         })
         .from(address);
 
@@ -64,7 +69,15 @@ export async function getAddresses(
 
     const results = await query;
 
-    return results.map((result) => {
+    const translated = applyModelTranslations<
+        (typeof results)[number],
+        TranslatedField
+    >(results, {
+        fields: translatedFields,
+        languages,
+    });
+
+    return translated.map((result) => {
         const coordinates = result.coordinates
             ? {
                   latitude: result.coordinates.y,
@@ -85,13 +98,18 @@ export async function getAddresses(
 export async function getPaginatedAddresses({
     pagination,
     filters,
-}: GetPaginatedAddresses): Promise<PaginatedResponse<AddressSelect>> {
+    languages,
+}: GetPaginatedAddresses = {}): Promise<PaginatedResponse<AddressSelect>> {
     const { limit = 24, offset = 0 } = pagination || {};
 
     // Get one extra item to determine if there's a next page
     const extraLimit = limit + 1;
 
-    const results = await getAddresses({ limit: extraLimit, offset }, filters);
+    const results = await getAddresses({
+        pagination: { limit: extraLimit, offset },
+        filters,
+        languages,
+    });
 
     // Check if there's a next page
     const hasNext = results.length > limit;
