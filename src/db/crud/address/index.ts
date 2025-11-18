@@ -1,7 +1,7 @@
 import { and, eq, inArray, type SQL } from 'drizzle-orm';
 import type { Json } from 'drizzle-typebox';
 import type { SupportedLanguage } from '../../../i18n/config';
-import type { AddressFiltersSchema } from '../../../modules/address/schemas';
+import type { AddressFiltersSchema } from '../../../modules/addresses/schemas';
 import type {
     PaginatedResponse,
     PaginationQuerySchema,
@@ -78,17 +78,31 @@ export async function getAddresses({
     });
 
     return translated.map((result) => {
-        const coordinates = result.coordinates
-            ? {
-                  latitude: result.coordinates.y,
-                  longitude: result.coordinates.x,
-              }
-            : null;
+        // Parallel transformations for better performance
+        const [coordinates, location] = [
+            // Transform coordinates
+            result.coordinates
+                ? {
+                      latitude: result.coordinates.y,
+                      longitude: result.coordinates.x,
+                  }
+                : null,
+            // Transform location objects in parallel
+            Array.isArray(result.location)
+                ? result.location.map((item: Record<string, unknown>) => {
+                      if (item && typeof item === 'object' && 'url_root' in item) {
+                          const { url_root, ...rest } = item;
+                          return { ...rest, urlRoot: url_root };
+                      }
+                      return item;
+                  })
+                : result.location,
+        ];
 
         return {
             ...result,
             coordinates,
-            location: result.location as Json,
+            location: location as Json,
             urlRoot: result.urlRoot as Json,
             raw: result.raw as Json,
         };
