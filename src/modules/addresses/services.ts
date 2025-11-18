@@ -1,4 +1,7 @@
-import { getAddresses as getAddressesCrud, getPaginatedAddresses as getPaginatedAddressesCrud } from '../../db/crud/address';
+import {
+    getAddresses as getAddressesCrud,
+    getPaginatedAddresses as getPaginatedAddressesCrud,
+} from '../../db/crud/address';
 import type { SupportedLanguage } from '../../i18n/config';
 import type { AddressFiltersSchema, QuerySchema } from './schemas';
 

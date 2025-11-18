@@ -100,7 +100,11 @@ export async function getAddresses({
             // Transform location objects in parallel
             Array.isArray(result.location)
                 ? result.location.map((item: Record<string, unknown>) => {
-                      if (item && typeof item === 'object' && 'url_root' in item) {
+                      if (
+                          item &&
+                          typeof item === 'object' &&
+                          'url_root' in item
+                      ) {
                           const { url_root, ...rest } = item;
                           return { ...rest, urlRoot: url_root };
                       }

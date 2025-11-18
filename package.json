@@ -5,6 +5,7 @@
     "dev": "dotenvx run -f .env.local -- bun run --watch src/server.ts"
   },
   "dependencies": {
+    "@elysiajs/opentelemetry": "^1.4.7",
     "drizzle-orm": "^0.44.7",
     "drizzle-typebox": "^0.3.3",
     "elysia": "latest",
