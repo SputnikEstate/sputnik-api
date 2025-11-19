@@ -1,3 +1,4 @@
+import { record } from '@elysiajs/opentelemetry';
 import { and, eq, inArray, type SQL } from 'drizzle-orm';
 import type { Json } from 'drizzle-typebox';
 import type { SupportedLanguage } from '../../../i18n/config';
@@ -77,7 +78,7 @@ export async function getAddresses({
     query.limit(limit);
     query.offset(offset);
 
-    const results = await query;
+    const results = await record('database.query', () => query);
 
     const translated = applyModelTranslations<
         (typeof results)[number],
