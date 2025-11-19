@@ -95,7 +95,7 @@ const parseAcceptLanguageHeader = (
 
 export const language = new Elysia({ name: 'language' }).derive(
     { as: 'scoped' },
-    ({ request }): LanguageContext => {
+    function parseAcceptLanguages({ request }): LanguageContext {
         const preferredLanguages = parseAcceptLanguageHeader(
             request.headers.get('accept-language'),
         );
