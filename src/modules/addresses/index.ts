@@ -4,7 +4,7 @@ import { querySchema, responseSchema } from './schemas';
 import { getAddresses } from './services';
 
 export const addresses = new Elysia({ prefix: '/api/addresses' }).get(
-    '/',
+    '',
     async (ctx) => {
         const { query, languages } = ctx as typeof ctx & LanguageContext;
 
