@@ -70,7 +70,10 @@ export async function getDevelopers({
 
     const results = await record('database.query', () => query);
 
-    return results;
+    return results.map((result) => ({
+        ...result,
+        logo: result.logo ? `https://storage.sputnik.estate/${result.logo}` : null,
+    }));
 }
 
 export async function getPaginatedDevelopers({
