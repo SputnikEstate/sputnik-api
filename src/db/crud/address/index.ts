@@ -13,7 +13,11 @@ import {
     type TranslatedField,
     translatedFields,
 } from '../../schema/address';
-import { applyModelTranslations, selectTranslationColumns } from '../helpers';
+import {
+    applyModelTranslations,
+    createPaginatedResponse,
+    selectTranslationColumns,
+} from '../helpers';
 
 export interface GetAddressesOptions {
     pagination?: PaginationQuerySchema;
@@ -131,7 +135,6 @@ export async function getPaginatedAddresses({
 }: GetPaginatedAddresses = {}): Promise<PaginatedResponse<AddressSelect>> {
     const { limit = 24, offset = 0 } = pagination || {};
 
-    // Get one extra item to determine if there's a next page
     const extraLimit = limit + 1;
 
     const results = await getAddresses({
@@ -140,32 +143,5 @@ export async function getPaginatedAddresses({
         languages,
     });
 
-    // Check if there's a next page
-    const hasNext = results.length > limit;
-
-    // Remove the extra item if it exists
-    const actualResults = hasNext ? results.slice(0, -1) : results;
-
-    // Determine pagination links
-    const hasPrevious = offset > 0;
-
-    const next = hasNext
-        ? {
-              limit,
-              offset: offset + limit,
-          }
-        : null;
-
-    const previous = hasPrevious
-        ? {
-              limit,
-              offset: Math.max(0, offset - limit),
-          }
-        : null;
-
-    return {
-        next,
-        previous,
-        results: actualResults,
-    };
+    return createPaginatedResponse(results, limit, offset);
 }

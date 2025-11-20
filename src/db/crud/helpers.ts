@@ -4,6 +4,7 @@ import {
     SUPPORTED_LANGUAGES,
     type SupportedLanguage,
 } from '../../i18n/config';
+import type { PaginatedResponse } from '../../schema/pagination';
 
 type CapitalizeLanguage<Lang extends string> =
     Lang extends `${infer First}${infer Rest}`
@@ -200,3 +201,38 @@ export const selectTranslationColumns = <
 
     return selection;
 };
+
+export function createPaginatedResponse<T>(
+    results: T[],
+    limit: number,
+    offset: number,
+): PaginatedResponse<T> {
+    // Check if there's a next page
+    const hasNext = results.length > limit;
+
+    // Remove the extra item if it exists
+    const actualResults = hasNext ? results.slice(0, -1) : results;
+
+    // Determine pagination links
+    const hasPrevious = offset > 0;
+
+    const next = hasNext
+        ? {
+              limit,
+              offset: offset + limit,
+          }
+        : null;
+
+    const previous = hasPrevious
+        ? {
+              limit,
+              offset: Math.max(0, offset - limit),
+          }
+        : null;
+
+    return {
+        next,
+        previous,
+        results: actualResults,
+    };
+}
