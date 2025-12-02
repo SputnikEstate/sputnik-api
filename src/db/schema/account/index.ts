@@ -20,12 +20,18 @@ export const account = pgTable('account', {
     username: varchar('username', { length: 150 }).notNull().unique(),
     voximplantApplicationId: integer('voximplant_application_id'),
     voximplantUserActive: boolean('voximplant_user_active'),
-    voximplantUserDisplayName: varchar('voximplant_user_display_name', { length: 256 }),
+    voximplantUserDisplayName: varchar('voximplant_user_display_name', {
+        length: 256,
+    }),
     voximplantUserId: integer('voximplant_user_id'),
     voximplantUserName: varchar('voximplant_user_name', { length: 49 }),
-    voximplantUserPassword: varchar('voximplant_user_password', { length: 128 }),
+    voximplantUserPassword: varchar('voximplant_user_password', {
+        length: 128,
+    }),
     lastSeenAt: timestamp('last_seen_at', { withTimezone: true }),
-    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+        .defaultNow()
+        .notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true })
         .defaultNow()
         .notNull()

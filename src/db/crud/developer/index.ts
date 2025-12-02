@@ -72,7 +72,9 @@ export async function getDevelopers({
 
     return results.map((result) => ({
         ...result,
-        logo: result.logo ? `https://storage.sputnik.estate/${result.logo}` : null,
+        logo: result.logo
+            ? `https://storage.sputnik.estate/${result.logo}`
+            : null,
     }));
 }
 

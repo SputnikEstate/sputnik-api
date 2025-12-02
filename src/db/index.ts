@@ -9,6 +9,14 @@ import {
     contactTelegram,
 } from './schema/contact';
 import { developer } from './schema/developer';
+import {
+    department,
+    employee,
+    employeeEmail,
+    employeePhone,
+    role,
+} from './schema/employee';
+import { virtualPhone } from './schema/phones';
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL!,
@@ -24,5 +32,11 @@ export const db = drizzle({
         contactPhone,
         contactTelegram,
         developer,
+        employee,
+        employeePhone,
+        employeeEmail,
+        department,
+        role,
+        virtualPhone,
     },
 });
